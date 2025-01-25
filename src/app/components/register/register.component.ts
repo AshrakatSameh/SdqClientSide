@@ -58,7 +58,8 @@ export class RegisterComponent {
   signUp() {
     this.auth.register(this.registerForm.value).subscribe({
       next: (response) => {
-        alert(response.message);
+        alert("added successfully");
+        this.router.navigate(['/login']);
       },
       error: (error) => {
         console.log(error);
