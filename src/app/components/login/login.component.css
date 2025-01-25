@@ -1,0 +1,7 @@
+.btn {
+    @apply px-4 py-2 rounded font-bold;
+  }
+  
+  .btn-gradient {
+    @apply bg-gradient-to-r from-blue-500 to-purple-500 text-white;
+  }

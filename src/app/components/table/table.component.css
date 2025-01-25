@@ -1,0 +1,32 @@
+.bh-datatable .bh-table-responsive table tbody tr td, .bh-datatable .bh-table-responsive table tfoot tr th, .bh-datatable .bh-table-responsive table thead tr th {
+    padding: .75rem 1rem;
+    text-align: left;
+}
+
+.edit{
+    margin-top: 30px;
+}
+
+.th , .td{
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+label{
+    margin-bottom: 0.375rem;
+    display: inline;
+    font-weight: 600;
+}
+input{
+    border: 1px solid #b5b7bb;
+    border-radius: 4px;
+}
+textarea{
+    width: 100%;
+    border: 2px solid rgb(203 204 207);
+    border-radius: 5px;
+    resize: vertical;
+    --tw-bg-opacity: 1;
+    background-color: rgb(243 244 246 / var(--tw-bg-opacity));
+}
