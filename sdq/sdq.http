@@ -1,0 +1,6 @@
+@sdq_HostAddress = http://localhost:5025
+
+GET {{sdq_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
