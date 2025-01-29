@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using sdq.DTOs;
 using sdq.Entities;
+using sdq.Implementation;
 using sdq.Repositories;
 
 namespace sdq.Services
@@ -13,14 +14,16 @@ namespace sdq.Services
 
         private readonly ITicketRepo _repo;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ILogger<TicketService> _logger;
 
-        public TicketService(ITicketRepo repo, UserManager<ApplicationUser> userManager)
+        public TicketService(ITicketRepo repo, UserManager<ApplicationUser> userManager, ILogger<TicketService> logger)
         {
             _repo=repo;
             _userManager=userManager;
+            _logger=logger;
         }
 
-        public async Task<IEnumerable<TicketDto>> getAllWithFilter(string? category, string? status, string? priority)
+        public async Task<IEnumerable<TicketDto>> getAllWithFilter(int? category, int? status, int? priority)
         {
             return await _repo.GetTicketAllAsync(category, status, priority);
         }
@@ -28,25 +31,31 @@ namespace sdq.Services
         {
             return await _repo.GetFilteredTicketsAsync(category, priority);
         }
-        public async Task<Ticket> GetTicketByIdAsync(int id)
+        public async Task<TicketDto> GetTicketByIdAsync(int id)
         {
             return await _repo.GetTicketByIdAsync(id);
         }
-        public async Task<bool> UpdateTicketAsync(long id, UpdateTicketStatusDto ticket, string updatedBy)
+        public async Task<bool> UpdateTicketAsync(long id, UpdateTicketStatusDto ticket, string userId)
         {
-            var user = await _userManager.FindByIdAsync(updatedBy);
-            if (user is null)
+            // Validate the logged-in user
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
             {
-                // Return false if the user does not exist
+                _logger.LogWarning($"User with ID {userId} not found.");
                 return false;
             }
+
+            // Ensure user is authorized (e.g., SupportAgent role)
             var roles = await _userManager.GetRolesAsync(user);
             if (!roles.Contains("SupportAgent"))
             {
-                // Return false if the user is not an admin
+                _logger.LogWarning($"User with ID {userId} does not have the required role to update tickets.");
                 return false;
             }
-            return await _repo.UpdateTicketAsync(id, ticket, updatedBy);
+
+            // Delegate to repository
+            return await _repo.UpdateTicketAsync(id, ticket, Guid.Parse(userId));
+
         }
 
         public async Task<bool> DeleteTicketAsync(int id)

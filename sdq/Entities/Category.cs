@@ -17,6 +17,7 @@ namespace sdq.Entities
         [StringLength(50)]
         public string Title { get; set; } = null!;
 
+    
         [InverseProperty("Category")]
         public virtual ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
     }

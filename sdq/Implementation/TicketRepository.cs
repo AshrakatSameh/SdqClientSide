@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 using sdq.Data;
 using sdq.DTOs;
 using sdq.Entities;
@@ -44,9 +45,9 @@ namespace sdq.Implementation
             return await query.ToListAsync();
         }
 
-        public async Task<IEnumerable<TicketDto>> GetTicketAllAsync(string? category = null, 
-            string? status = null,
-            string? priority = null)
+        public async Task<IEnumerable<TicketDto>> GetTicketAllAsync(int? categoryId = null,
+             int? statusId = null,
+             int? priorityId = null)
         {
             // Start with the base query
             var query = _context.Tickets.AsQueryable()
@@ -57,22 +58,21 @@ namespace sdq.Implementation
                 .Include(t => t.TicketEmployeeAssignmentHistories)
                 .Include(t => t.TicketMessages)
                 .AsQueryable();
-
-            // Apply filters dynamically
-            if (!string.IsNullOrEmpty(category))
+            if (categoryId.HasValue)
             {
-                query = query.Where(t => t.Category.Title == category);
+                query = query.Where(t => t.CategoryId == categoryId.Value);
             }
 
-            if (!string.IsNullOrEmpty(status))
+            if (statusId.HasValue)
             {
-                query = query.Where(t => t.Status.Title == status);
+                query = query.Where(t => t.StatusId == statusId.Value);
             }
 
-            if (!string.IsNullOrEmpty(priority))
+            if (priorityId.HasValue)
             {
-                query = query.Where(t => t.PriorityNavigation.Title == priority);
+                query = query.Where(t => t.Priority == priorityId.Value);
             }
+
 
             // Project to TicketDto
             var tickets = await query
@@ -97,28 +97,90 @@ namespace sdq.Implementation
 
 
 
-        public async Task<Ticket> GetTicketByIdAsync(int id)
+        public async Task<TicketDto> GetTicketByIdAsync(int id)
         {
-            return await _context.Tickets.FirstOrDefaultAsync(t => t.Id == id);
+            var ticket = await _context.Tickets
+        .Include(t => t.Status)  // Include related Status
+        .Include(t => t.Category)  // Include related Category
+        .Include(t => t.PriorityNavigation)  // Include related Priority
+        .Include(t => t.TicketAttachments)  // Include related Attachments
+        .Include(t => t.TicketEmployeeAssignmentHistories)  // Include related Assignment Histories
+        .Include(t => t.TicketMessages)  // Include related Messages
+        .FirstOrDefaultAsync(t => t.Id == id);  // Get the Ticket by ID
+
+            // Check if the ticket was found
+            if (ticket == null)
+            {
+                return null;  // You can throw an exception here if you prefer
+            }
+
+            // Map the Ticket entity to TicketDto
+            var ticketDto = new TicketDto
+            {
+                Id = ticket.Id,
+                CustomerId = ticket.CustomerId,
+                AssignedToEmployee = ticket.AssignedToEmployee,
+                Title = ticket.Title,
+                Description = ticket.Description,
+                Status = ticket.Status?.Title,  // Map Status to its name
+                Category = ticket.Category?.Title,  // Map Category to its name
+                Priority = ticket.PriorityNavigation?.Title,  // Map Priority to its name
+
+                // Map related collections to DTOs
+                Attachments = ticket.TicketAttachments.Select(ta => new TicketAttachment
+                {
+                    Id = ta.Id,
+                    FileTitle = ta.FileTitle,
+                    FilePath = ta.FilePath
+                }).ToList(),
+
+                AssignmentHistories = ticket.TicketEmployeeAssignmentHistories.Select(th => new TicketEmployeeAssignmentHistory
+                {
+                    Id = th.Id,
+                    AssignedBy = th.AssignedBy,
+                    EmployeeId = th.EmployeeId,
+                    AssignmentDate = th.AssignmentDate
+                }).ToList(),
+
+                Messages = ticket.TicketMessages.Select(tm => new TicketMessage
+                {
+                    Id = tm.Id,
+                    CreatedBy = tm.CreatedBy,
+                    CreatedAt = tm.CreatedAt,
+                    Message = tm.Message,
+                    IsSeen = tm.IsSeen
+                }).ToList()
+            };
+
+            // Return the mapped TicketDto
+            return ticketDto;
         }
 
-        public async Task<bool> UpdateTicketAsync(long id, UpdateTicketStatusDto ticket, string updatedBy)
+        public async Task<bool> UpdateTicketAsync(long id, UpdateTicketStatusDto ticket, Guid assignedEmployeeId)
         {
             var existingTicket = await _context.Tickets.FindAsync(id);
             if (existingTicket == null)
             {
-                // Log if ticket is not found
                 _logger.LogWarning($"Ticket with ID {id} not found.");
                 return false;
             }
+            if (existingTicket.AssignedToEmployee != null)
+            {
+                existingTicket.StatusId = ticket.StatusId;
+                _context.Tickets.Update(existingTicket);
+                await _context.SaveChangesAsync();
+                throw new InvalidOperationException("Ticket is already assigned.");
+            }
+
             existingTicket.StatusId = ticket.StatusId;
+            existingTicket.AssignedToEmployee = assignedEmployeeId;
 
             _context.Tickets.Update(existingTicket);
             await _context.SaveChangesAsync();
 
-            // Log success
-            _logger.LogInformation($"Ticket with ID {id} updated successfully.");
+            _logger.LogInformation($"Ticket with ID {id} updated successfully. Assigned to employee {assignedEmployeeId}.");
             return true;
-        }
+        
+    }
     }
 }

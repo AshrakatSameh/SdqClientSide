@@ -7,6 +7,7 @@ namespace sdq.DTOs
    
 
         public int StatusId { get; set; }
+        //public Guid? AssignedToEmployee { get; set; }
 
 
     }

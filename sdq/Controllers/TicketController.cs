@@ -24,8 +24,8 @@ namespace sdq.Controllers
             var tickets = await _ticketService.GetAllTicketsAsync(category, priority);
             return Ok(tickets);
         }
-        [HttpGet("getall details")]
-        public async Task<ActionResult<IEnumerable<TicketDto>>> GetAllTicketsWithFilterAsync([FromQuery] string? category, [FromQuery] string? priority, [FromQuery] string? status)
+        [HttpGet("getAllDetails")]
+        public async Task<ActionResult<IEnumerable<TicketDto>>> GetAllTicketsWithFilterAsync([FromQuery] int? category, [FromQuery] int? priority, [FromQuery] int? status)
         {
             var tickets = await _ticketService.getAllWithFilter(category, status, priority);
             return Ok(tickets);
@@ -33,32 +33,43 @@ namespace sdq.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Ticket>> GetTicketByIdAsync(int id)
         {
-            var ticket = await _ticketService.GetTicketByIdAsync(id);
-            if (ticket is null)
+            var ticketDto = await _ticketService.GetTicketByIdAsync(id);
+
+            if (ticketDto == null)
             {
                 return NotFound();
             }
-            return Ok(ticket);
+
+            return Ok(ticketDto);
         }
 
         [Authorize(Roles = "SupportAgent")]
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdateTicketAsync(long id, UpdateTicketStatusDto ticket)
         {
-            var updatedBy = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            //var updatedBy = User.FindFirst(JwtRegisteredClaimNames.NameId)?.Value;
 
-            if (string.IsNullOrEmpty(updatedBy))
+            if (ticket == null)
             {
-                return Unauthorized("Invalid user ID.");
+                return BadRequest("Invalid ticket data.");
             }
 
-            var result = await _ticketService.UpdateTicketAsync(id, ticket, updatedBy);
+            // Get user ID from token
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized("User is not authorized.");
+            }
+
+            var result = await _ticketService.UpdateTicketAsync(id, ticket, userId);
+
             if (!result)
             {
-                return BadRequest("Failed to update ticket status.");
+                return NotFound("Ticket not found or the update operation was not successful.");
             }
-            return Ok(new { message = "Ticket status updated successfully." });
+
+            return Ok(new { message = "Ticket updated successfully." });
+
         }
 
         //[HttpDelete("{id}")]

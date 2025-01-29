@@ -6,9 +6,9 @@ namespace sdq.Repositories
     public interface ITicketRepo
     {
         Task<IEnumerable<Ticket>> GetFilteredTicketsAsync(string? category, string? priority);
-        Task<Ticket> GetTicketByIdAsync(int id);
-        Task<IEnumerable<TicketDto>> GetTicketAllAsync(string? category, string? status, string? priority);
-        Task<bool> UpdateTicketAsync(long id, UpdateTicketStatusDto ticket, string updatedBy);
+        Task<TicketDto> GetTicketByIdAsync(int id);
+        Task<IEnumerable<TicketDto>> GetTicketAllAsync(int? categoryId = null, int? statusId = null,int? priorityId = null);
+        Task<bool> UpdateTicketAsync(long id, UpdateTicketStatusDto ticket, Guid assignedEmployeeId);
         Task<bool> DeleteTicketAsync(int id);
     }
 }
