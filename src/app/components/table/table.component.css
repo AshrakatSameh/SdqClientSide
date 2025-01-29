@@ -18,9 +18,12 @@ label{
     display: inline;
     font-weight: 600;
 }
-input{
+ select{
     border: 1px solid #b5b7bb;
     border-radius: 4px;
+    width: 25%;
+    margin-bottom: 7px;
+
 }
 textarea{
     width: 100%;

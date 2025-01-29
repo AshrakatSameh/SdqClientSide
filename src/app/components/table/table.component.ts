@@ -20,10 +20,27 @@ export class TableComponent {
   faClockRotateLeft = faHistory;
   faImage = faImage;
   tickets: any[] = [];
-  categoryFilter: string = '';
-  statusFilter: string = '';
-  priorityFilter: string = '';
-
+  categoryFilter: number = 0 
+  statusFilter: number = 0
+  priorityFilter: number  = 0
+  filteredTickets = [...this.tickets];
+  categories = [
+    { id: 1, name: 'Complaition' },
+    { id: 2, name: 'Suggestion' },
+  ];
+  
+  statuses = [
+    { id: 1, name: 'Open' },
+    { id: 2, name: 'In Progress' },
+    { id: 3, name: 'Resolved' },
+    {id: 4, name: 'Closed'}
+  ];
+  
+  priorities = [
+    { id: 1, name: 'Low' },
+    { id: 2, name: 'Medium' },
+    { id: 3, name: 'High' }
+  ];
   selectedTicket: any = null; // Data to display in the modal
   showModal = false;
 
@@ -92,7 +109,7 @@ export class TableComponent {
             });
           }
 
-          
+       
         });
 
         console.log('Tickets with user details:', this.tickets);
@@ -103,8 +120,14 @@ export class TableComponent {
     });
   }
 
-  applyFilters(): void {
-    this.getTickets(); // Fetch tickets with the current filter values
+  applyFilters() {
+    this.filteredTickets = this.tickets.filter(ticket =>
+      (this.categoryFilter === null || ticket.categoryId === this.categoryFilter) &&
+      (this.statusFilter === null || ticket.statusId === this.statusFilter) &&
+      (this.priorityFilter === null || ticket.priorityId === this.priorityFilter)
+      
+    );
+    this.getTickets();
   }
 
   user: User | null = null;

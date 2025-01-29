@@ -47,6 +47,7 @@ import { TableComponent } from './components/table/table.component';
 import { DataTableModule } from '@bhplugin/ng-datatable';
 import { RegisterComponent } from './components/register/register.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { TicketComponent } from './components/ticket/ticket.component';
 
 
 @NgModule({
@@ -77,7 +78,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
         }),
         IconModule,
     ],
-    declarations: [AppComponent, HeaderComponent, FooterComponent, SidebarComponent, ThemeCustomizerComponent, IndexComponent, AppLayout, AuthLayout, LoginComponent, TableComponent, RegisterComponent],
+    declarations: [AppComponent, HeaderComponent, FooterComponent, SidebarComponent, ThemeCustomizerComponent, IndexComponent, AppLayout, AuthLayout, LoginComponent, TableComponent, RegisterComponent, TicketComponent],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
 
     providers: [AppService, Title],

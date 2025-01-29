@@ -10,55 +10,41 @@
 
     <div class="panel mt-6 pb-0">
         <div class="mb-5 flex flex-col gap-5 md:flex-row md:items-center">
-            <h5 class="text-lg font-semibold dark:text-white-light">Table 1</h5>
+            <h5 class="text-lg font-semibold dark:text-white-light">Tickets :</h5>
             <div class="ltr:ml-auto rtl:mr-auto">
                 <input [(ngModel)]="search1" type="text" class="form-input w-auto" placeholder="Search..." />
             </div>
         </div>
 
-        <!-- <div class="datatable">
-            <ng-datatable
-                [rows]="rows"
-                [columns]="datatable1Cols"
-                [sortable]="true"
-                sortColumn="firstName"
-                [search]="search1"
-                skin="whitespace-nowrap table-hover"
-                firstArrow='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"> <path d="M13 19L7 12L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/> <path opacity="0.5" d="M16.9998 19L10.9998 12L16.9998 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/> </svg>'
-                lastArrow='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"> <path d="M11 19L17 12L11 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/> <path opacity="0.5" d="M6.99976 19L12.9998 12L6.99976 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/> </svg> '
-                previousArrow='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"> <path d="M15 5L9 12L15 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/> </svg>'
-                nextArrow='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"> <path d="M9 5L15 12L9 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/> </svg>'
-            >
-                <ng-template slot="firstName" let-value="data">
-                    <div class="flex w-max items-center">
-                        <img class="h-9 w-9 rounded-full object-cover ltr:mr-2 rtl:ml-2" [src]="'/assets/images/profile-' + value.id + '.jpeg'" />
-                        {{ value.firstName + ' ' + value.lastName }}
-                    </div>
-                </ng-template>
-                <ng-template slot="dob" let-value="data"> {{ formatDate(value.dob) }} </ng-template>
-                <ng-template slot="status" let-value="data">
-                    <span class="badge" [ngClass]="'bg-' + value.statusColor">{{ value.status }}</span>
-                </ng-template>
-                <ng-template slot="action" let-value>
-                    <div class="text-center">
-                        <button type="button" ngxTippy="Delete">
-                            <icon-x-circle />
-                        </button>
-                    </div>
-                </ng-template>
-            </ng-datatable>
-        </div>
-    </div> -->
-    <div style="display: flex ;justify-content: space-between;">
+   
+    <div style="display: flex; justify-content: space-between; gap: 10px; align-items: center;">
+  
         <label for="category">Category:</label>
-        <input id="category" [(ngModel)]="categoryFilter" (input)="applyFilters()" />
+        <select id="category" [(ngModel)]="categoryFilter" (change)="applyFilters()">
+          <option [ngValue]="null">All</option>
+          <option *ngFor="let category of categories" [value]="category.id">
+            {{ category.name }}
+          </option>
+        </select>
       
         <label for="status">Status:</label>
-        <input id="status" [(ngModel)]="statusFilter" (input)="applyFilters()" />
+        <select id="status" [(ngModel)]="statusFilter" (change)="applyFilters()">
+          <option [ngValue]="null">All</option>
+          <option *ngFor="let status of statuses" [value]="status.id">
+            {{ status.name }}
+          </option>
+        </select>
       
         <label for="priority">Priority:</label>
-        <input id="priority" [(ngModel)]="priorityFilter" (input)="applyFilters()" />
+        <select id="priority" [(ngModel)]="priorityFilter" (change)="applyFilters()">
+          <option [ngValue]="null">All</option>
+          <option *ngFor="let priority of priorities" [value]="priority.id">
+            {{ priority.name }}
+          </option>
+        </select>
+      
       </div>
+      
         <div class="datatable">
             <table class="table whitespace-nowrap table-hover">
                 <thead>
@@ -70,26 +56,17 @@
                         <th>Status</th>
                         <th>priority</th>
                         <th>Category</th>
-                        <th>Image</th>
+                        <!-- <th>Image</th> -->
                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr *ngFor="let ticket of tickets">
-                        <!-- <td>
-                <div class="flex w-max items-center">
-                  <img
-                    class="h-9 w-9 rounded-full object-cover ltr:mr-2 rtl:ml-2"
-                    [src]="'/assets/images/profile-' + row.id + '.jpeg'"
-                    alt="Profile Picture"
-                  />
-                  {{ row.customerId }}
-                </div>
-              </td> -->
+                
                         <td>{{ticket.customerDetails}}</td>
                         <td>{{ticket.assignedToDetails}}</td>
                         <td>{{ticket.title}}</td>
-                        <td>{{ticket.description}}</td>
+                        <td>{{ticket.description | slice:0:30 }}..</td>
                         <!-- <td>{{ticket.category}}</td> -->
                         <td>
                             <div class="relative">
@@ -123,28 +100,14 @@
                           
                         </td>
                         <td>{{ticket.category}}</td>
-                        <td>
-                            <div *ngIf="ticket?.attachments?.length > 0; else noAttachments">
-                                <div class="grid grid-cols-2 gap-2">
-                                    <div *ngFor="let attachment of ticket.attachments">
-                                        <a [href]="attachment.filePath" target="_blank">
-                                            <fa-icon [icon]="faImage" class="text-blue-500" style="font-size: 24px; cursor: pointer;"></fa-icon>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                            <ng-template #noAttachments>
-                                <p>Not available.</p>
-                            </ng-template>
-                        </td>
+                   
 
                         <td class="text-center">
-                            <button type="button" (click)="openModal(ticket.id)">
-                                <fa-icon [icon]="faComment" ngxTippy="Comment"></fa-icon>
-                            </button>
-                            <button type="button" (click)="openModal2(ticket.id)">
-                                <fa-icon [icon]="faClockRotateLeft" class="text-dark-500" style="font-size: 15px;margin-left: 11px;"></fa-icon>
-                            </button>
+                       
+                            <button *ngIf="ticket.status !=='Closed'" class="bg-blue-600 text-white px-4 py-1 rounded-lg"
+                        [routerLink]="['/ticket', ticket.id]">
+                    View Details
+                </button>
                         </td>
                     </tr>
                 </tbody>

@@ -12,11 +12,11 @@ import { jwtDecode } from 'jwt-decode';
 export class TicketService {
 
   //apiUrl = 'http://localhost:5025/api/Ticket';
- apiUrl= 'http://localhost:5025/api/Ticket/getall details';
+ apiUrl= 'http://localhost:5025/api/Ticket/getAllDetails';
 
   constructor(private http: HttpClient) { }
 
-  getTickets(category?: string,status?: string, priority?: string): Observable<any[]> {
+  getTickets(category?: number,status?: number, priority?: number): Observable<any[]> {
     let params = new HttpParams();
 
     if (category) {
@@ -59,6 +59,11 @@ export class TicketService {
     return this.http.put(url, payload, { headers });
   }
 
+  // assignTicketToUser(ticketId: number): Observable<any> {
+  //   const ticketDto = { statusId: 2 }; // Set statusId to 2 (assigned)
+  //   return this.http.put(`${this.api}Ticket/${ticketId}`, ticketDto);
+  // }
+
   postMessage(ticketId: number, messageContent: string): Observable<any> {
     const token = localStorage.getItem('token');
     const decodedToken: any = jwtDecode(token!);
@@ -77,4 +82,7 @@ export class TicketService {
     return this.http.post(this.api+'TicketMessage', messageData);
   }
  
+  getTicketById(id: string): Observable<any> {
+    return this.http.get<any>(`${this.api}Ticket/${id}`);
+  }
 }

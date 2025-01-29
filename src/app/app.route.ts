@@ -9,6 +9,8 @@ import { TableComponent } from './components/table/table.component';
 import { registerLocaleData } from '@angular/common';
 import { RegisterComponent } from './components/register/register.component';
 import { AuthGuard } from './guards/auth.guard';
+import { tick } from '@angular/core/testing';
+import { TicketComponent } from './components/ticket/ticket.component';
 
 export const routes: Routes = [
     {
@@ -19,6 +21,7 @@ export const routes: Routes = [
             { path: '', component: IndexComponent, title: 'Sales Admin | VRISTO - Multipurpose Tailwind Dashboard Template' },
 
             {path:'table', component: TableComponent},
+            {path:'ticket/:id', component: TicketComponent},
         ], canActivate:[AuthGuard], 
     },
 
